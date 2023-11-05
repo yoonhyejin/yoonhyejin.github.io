@@ -8,7 +8,7 @@ const siteMetadata = {
   theme: 'system', // system, dark or light
   siteUrl: 'https://yoonhyejin-github-io.vercel.app',
   siteRepo: 'https://github.com/yoonhyejin/yoonhyejin.github.io',
-  siteLogo: '/static/images/logo.png',
+  siteLogo: '/static/images/avatar.png',
   socialBanner: '/static/images/twitter-card.png',
   mastodon: 'https://mastodon.social/@mastodonuser',
   email: '0327jane@gmail.com',
