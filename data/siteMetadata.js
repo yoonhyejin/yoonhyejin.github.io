@@ -6,14 +6,14 @@ const siteMetadata = {
   description: 'Work in progress...',
   language: 'en-us',
   theme: 'system', // system, dark or light
-  siteUrl: 'https://tailwind-nextjs-starter-blog.vercel.app',
-  siteRepo: 'https://github.com/timlrx/tailwind-nextjs-starter-blog',
+  siteUrl: 'https://yoonhyejin-github-io.vercel.app',
+  siteRepo: 'https://github.com/yoonhyejin/yoonhyejin.github.io',
   siteLogo: '/static/images/logo.png',
   socialBanner: '/static/images/twitter-card.png',
   mastodon: 'https://mastodon.social/@mastodonuser',
-  email: 'address@yoursite.com',
-  github: 'https://github.com',
-  linkedin: 'https://www.linkedin.com',
+  email: '0327jane@gmail.com',
+  github: 'https://github.com/yoonhyejin',
+  linkedin: 'https://www.linkedin.com/in/hyejinyoon/',
   locale: 'en-US',
   analytics: {
     // If you want to use an analytics provider you have to add it to the
