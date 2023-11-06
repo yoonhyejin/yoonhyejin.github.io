@@ -1,8 +1,8 @@
 /** @type {import("pliny/config").PlinyConfig } */
 const siteMetadata = {
-  title: 'Dini`s Lab',
+  title: 'DINI',
   author: 'Hyejin Yoon',
-  headerTitle: 'Dini`s Lab',
+  headerTitle: 'DINI',
   description: 'Work in progress...',
   language: 'en-us',
   theme: 'system', // system, dark or light
