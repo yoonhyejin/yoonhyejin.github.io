@@ -1,0 +1,55 @@
+---
+title: Nextjs + Vercel로 블로그 만들기
+date: '2023-11-06'
+tags: ['engineering']
+draft: true
+summary:
+---
+
+## 1. 왜 Nextjs + Vercel으로 블로그를 만들었는가?
+
+원래는 Jekyll 로 만들어놓은 블로그가 있었다. [지난 글]() 참고.
+거의 1년을 묵혀두고 있었는데, 글을 다시 쓰려고 보니 굳이 Jekyll을 써야될까 싶은 마음도 있었고 React나 Nextjs를 곰부해보고 싶은 마음이 컸다.
+
+그래서 기존의 블로그를 엎고 새로 만들기로 결심했다!
+
+## 2. 기본 블로그 만들기
+
+### 2.1 Template 선정하기
+
+Jekyll에서 했던것처럼 마음에 드는 Theme 으로 만들기로 결심했다.
+나는 about, tag, navbar 정도가 있는 Theme 을 원했기 떄문에 [tailwind-nextjs-starter-blog](https://github.com/timlrx/tailwind-nextjs-starter-blog)를 골랐다.0
+
+다음과 같은 간단한 명령어로 clone하여 시작할 수 있다.
+
+```shell
+npx degit 'timlrx/tailwind-nextjs-starter-blog'
+```
+
+sitemetadata 수정한 내용
+autho 수정한 내용
+
+### 2.2 vercel deploy 설정하기
+회사에서 이미 Vercel 을 쓰고 있었기 때문에 익숙했다.
+
+## 3. Add-on 추가하기
+
+### 3.1 umami 연동하기
+
+### 3.2 giscus 설정하기
+
+## 4. 기타 커스텀 하기
+
+### 4.1 favicon 설정
+
+### 4.1 로고 및 기타 디자인 커스텀
+
+## 5. 마무리
+
+남아있는 Task 들은 다음과 같다.
+
+* 글꼴 바꾸기
+* multilingual site 만들기
+* 사이드바에 toc 달기
+* 맞춤법 봇 달기
+* ci cd 달기 (yarnlint?)

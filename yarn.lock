@@ -9383,7 +9383,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:^3.0.0":
+"prettier@npm:^3.0.3":
   version: 3.0.3
   resolution: "prettier@npm:3.0.3"
   bin:
@@ -10987,7 +10987,7 @@ __metadata:
     next-themes: ^0.2.1
     pliny: 0.1.4
     postcss: ^8.4.24
-    prettier: ^3.0.0
+    prettier: ^3.0.3
     prettier-plugin-tailwindcss: ^0.4.1
     react: 18.2.0
     react-dom: 18.2.0
