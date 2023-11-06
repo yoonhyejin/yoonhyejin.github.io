@@ -15,7 +15,7 @@ summary: Google Analytics, SEO, Utterance 설정하기
 
 ### 1.1 왜 Jekyll + Github Pages으로 블로그를 만들었는가? 
 사실 나는 기존에 tistory blog 를 이용하고 있었다. 
-하지만 취준 기록이 이것저것 섞여있기도 하고 특정 플랫폼에 의존하고 있는게 별로 맘이 편하지 않았다. 
+하지만 취준 기록이 이것저것 섞여있기도 하고 특정 플랫폼에 의존하고 있는게 별로 마음에 들지 않았다.
 개인 브랜딩을 위해 글을 좀더 잘 노출시킬 수 있는 + 언제가 될지는 모르지만 영어 article 을 쓸 수 있는 공간이 필요했다.
 
 블로그를 만들기 위해 고려했던 alternative 들은 다음과 같다. 
@@ -50,7 +50,7 @@ Optional 중에서 Tag, Category, Search 는 theme 이 다 해결해주었다.
 기깔나는 이름과 로고는 그냥 패스했다. 
 Multilingual 도 일단은 홀딩한 상태인데 가까운 시일내 하지 않을까 생각한다.
 
-## 2. 기본 블로그 만들기
+## 2. 기본 블로그 배포하기
 
 ### 2.1 Github Pages + Jekyll 세팅하기
 
@@ -96,11 +96,22 @@ entries_layout: list
 그러면 최종적으로 이렇게 navigation tab 에 `ABOUT`이 생긴걸 볼 수있다.
 ![about](/static/images/231105-jekyll-blog/about-tab.png)
 
-## 3. Add-on 추가하기
+
+### 2.4 GitHub Pages로 배포하기
+
+- **Setting -> Pages -> Build and deployment** 에서 Source를 GitHub Action으로 변경한다.
+- 제안된 워크플로우 목록 중에서 Jekyll Workflow를 선택한다.
+- **Commit changes** 로 코드에 반영한다.
+
+이렇게 하면 `.gihub/workflows/jekyll.yml` 파일이 생성되고, main branch에 push할 때마다 배포 워크플로우가 동작할 것이다.
+
+## 3. 툴 연동하기
 
 ### 3.1 Google Analytics 설정하기
+
 작고 귀여운 토이 프로젝트에는 언제나 작고 귀여운 나만의 피드백 루프가 필요하다. 
-나의 성과를 쉽게 확인할 수 있는 방법 중 하나가 GA를 붙이는 거라고 생각했다. 
+나의 성과를 쉽게 확인할 수 있는 방법 중 하나가 GA를 붙이는 거라고 생각했다.
+Google analytics에서 해당 웹사이트를 위한 계정과 도메인을 설정하고, 다음과 같이 tracking id를 등록해주는 과정이 필요하다.
 
 - `_config.yaml`에 다음과 같이 추가한다.
 ```yaml
@@ -125,7 +136,7 @@ google_analytics: <tracking_id>
 
 ### 3.2 Google SEO 설정하기
 쿨하게 naver seo 같은건 페스하고 google seo 만 설정했다.
-블로그의 루트 디렉터리에 sitemap.xml 다음처럼 작성해 위치해 준다. 
+블로그의 루트 디렉터리에 sitemap.xml을 다음처럼 작성한다.
 
 ```html
 {% raw %}

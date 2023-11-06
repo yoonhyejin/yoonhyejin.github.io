@@ -2,54 +2,190 @@
 title: Nextjs + Vercel로 블로그 만들기
 date: '2023-11-06'
 tags: ['engineering']
-draft: true
-summary:
+summary: Umami, next-sitemap, Giscus 설정하기
 ---
 
 ## 1. 왜 Nextjs + Vercel으로 블로그를 만들었는가?
 
-원래는 Jekyll 로 만들어놓은 블로그가 있었다. [지난 글]() 참고.
-거의 1년을 묵혀두고 있었는데, 글을 다시 쓰려고 보니 굳이 Jekyll을 써야될까 싶은 마음도 있었고 React나 Nextjs를 곰부해보고 싶은 마음이 컸다.
+원래는 Jekyll 로 만들어놓은 블로그가 있었다([지난 글](https://diniblog.vercel.app/blog/setting-up-jekyll-blog) 참고).
+만들어만 놓고 거의 1년을 묵혀두고 있었는데, 글을 다시 쓰려고 보니 굳이 Jekyll을 써야될까 싶은 생각도 있었고 React/Nextjs를 공부하고 싶은 동기가 컸다.
+그래서 기존의 블로그를 엎고 새로 만들기로 결심했다.
 
-그래서 기존의 블로그를 엎고 새로 만들기로 결심했다!
-
-## 2. 기본 블로그 만들기
+## 2. 기본 블로그 배포하기
 
 ### 2.1 Template 선정하기
 
-Jekyll에서 했던것처럼 마음에 드는 Theme 으로 만들기로 결심했다.
-나는 about, tag, navbar 정도가 있는 Theme 을 원했기 떄문에 [tailwind-nextjs-starter-blog](https://github.com/timlrx/tailwind-nextjs-starter-blog)를 골랐다.0
+Jekyll에서 했던것처럼 마음에 드는 Theme을 이용하기로 결심했다.
+나는 about, tag, navbar 정도의 기능이 있는 Theme 을 원했기 떄문에 [tailwind-nextjs-starter-blog](https://github.com/timlrx/tailwind-nextjs-starter-blog)를 골랐다.
 
-다음과 같은 간단한 명령어로 clone하여 시작할 수 있다.
+Git Repo에 가보면 아주 친절하게 README가 설명되어 있다. 다음과 같은 간단한 명령어로 clone하여 시작할 수 있다.
 
 ```shell
 npx degit 'timlrx/tailwind-nextjs-starter-blog'
 ```
 
-sitemetadata 수정한 내용
-autho 수정한 내용
+### 2.2 Vercel로 배포하기
 
-### 2.2 vercel deploy 설정하기
-회사에서 이미 Vercel 을 쓰고 있었기 때문에 익숙했다.
+여러 방법으로 배포가 가능하나 README에서는 [Vercel](https://vercel.com/docs)을 추천하고 있다. 나도 회사에서 이미 Vercel을 쓰고 있었기 때문에 바로 Vercel로 결정했다.
+Vercel 프로젝트 설정은 매우 간단하다. 메인 화면에서 `Add New Project` -> `Import Git Repository` 에서 블로그 소스코드가 있는 레포를 선택하면 된다.
 
-## 3. Add-on 추가하기
+![import-git](/static/images/231106-nextjs-blog/import-git.png)
 
-### 3.1 umami 연동하기
+프레임워크는 `Next.js`를 선택하고, Root Directory나 Build Command는 그대로 둔다. 마지막으로 `Deploy`를 클릭한다.
 
-### 3.2 giscus 설정하기
 
-## 4. 기타 커스텀 하기
+## 3. 툴 연동하기
 
-### 4.1 favicon 설정
+블로그를 처음 세팅할때 필요한 기능은 분석 툴, 댓글 기능, SEO 장도가 있을 것이다.
+나에게 익수한 툴들은 Google analytics, Utterances 등이었는데,
+[tailwind-nextjs-starter-blog](https://github.com/timlrx/tailwind-nextjs-starter-blog)에서는 각 기능에 대해 여러 provider 옵션을 제시하고 있었다.
+나는 이번에는 여기서 제시하는 새로운 툴을 이용해보기로 결정했다.
 
-### 4.1 로고 및 기타 디자인 커스텀
+### 3.1 분석 툴 : Umami 연동하기
+[Umami](https://umami.is/)는 웹 분석 툴이다. 사이트 메인에서 **Umami is a simple, privacy-focused alternative to Google Analytics**라고 대놓고 강조하고 있다.
+유료 버전도 있으나 무료 버전에서 사이트 3개까지는 커버 가능하다. 계정을 생성하고 사이트 별칭과 도메인을 추가해주면 끝이다.
 
-## 5. 마무리
+
+`siteMetadata.js`에 보면 `analytics`아래 이미 이렇게 친절하게 설정을 해주었다.
+```js
+  analytics: {
+    umamiAnalytics: {
+      umamiWebsiteId: process.env.NEXT_UMAMI_ID, // e.g. 123e4567-e89b-12d3-a456-426614174000
+    },
+  },
+```
+여기에 직접 Website ID를 추가해도 되고 vercel에 환경변수로 등록해도 된다.
+Website ID는 각 Dashboard의 URL( `https://cloud.umami.is/websites/<website-id>`) 에서 확인할 수 있다.
+
+나는 vercel에 환경변수로 등록해주었다. **Project -> Settings > Environmental Variable**에서 설정할 수 있다.
+![vercel-envvar](/static/images/231106-nextjs-blog/vercel-envvar.png)
+
+개인적으로 Google Analytics과 경험을 비교해봤을때 Umami의 장점은 다음과 같다.
+
+- 초기 설정 과정이 Google Analytics에 비해서 직관적임 (참고: [GA 설정하기](https://diniblog.vercel.app/blog/setting-up-jekyll-blog#3-add-on-%EC%B6%94%EA%B0%80%ED%95%98%EA%B8%B0))
+- Dashboard를 포함한 전반적인 UI/UX가 더 사용자 친화적이고 예쁨
+- Report 생성이 매우 쉬움
+
+분석을 딥하게 하는 분들의 입장에서 보면 다를 수도 있으나(예를 들면, 실제로 딥한 퍼널이나 유저 분석에서 얼마나 성능 차이를 보여주는지는 잘 모르겠다) 초보자 입장에서는 만족스러운 경험이었다.
+
+## 3.2 댓글 기능 : Giscus 설정하기
+
+다음에는 내적 관종의 필수템, 댓글 기능이다. [Disqus](https://disqus.com/)와 [Utterances](https://utteranc.es/)는 써봤는데 [Giscus](https://giscus.app/)라는 것을 최근에는 꽤 많이 쓰는 것 같았다.
+Utterances와 설정 방법은 매우 유사하나 차이점이라면 Github Issue가 아니라 Github Discussion을 기반으로 동작한다는 점, 댓글 외에도 Reaction 기능을 지원한다는 점, 기타 소소한 커스텀이 좀더 자유롭다는 점이 있다.
+
+
+`siteMetadata.js`에 보면 `comments`아래 이미 이렇게 친절하게 설정을 해주었다. 따라서 우리가 할 것은 Giscus를 위한 GitHub Repository와 ID를 생성하고 환경변수를 설정해주면 된다.
+
+```javascript
+comments: {
+provider: 'giscus', // supported providers: giscus, utterances, disqus
+giscusConfig: {
+  repo: process.env.NEXT_PUBLIC_GISCUS_REPO,
+  repositoryId: process.env.NEXT_PUBLIC_GISCUS_REPOSITORY_ID,
+  category: process.env.NEXT_PUBLIC_GISCUS_CATEGORY,
+  categoryId: process.env.NEXT_PUBLIC_GISCUS_CATEGORY_ID,
+  mapping: 'pathname', // supported options: pathname, url, title
+  reactions: '1', // Emoji reactions: 1 = enable / 0 = disable
+  metadata: '0',
+  theme: 'light',
+  darkTheme: 'transparent_dark',
+  themeURL: '',
+  lang: 'en',
+},
+```
+
+필요한 과정은 다음과 같다.
+
+- 댓글을 저장할 GitHub Repository를 생성한다. 이 Repository는 Public이어야 하고 Giscus가 설치되어있어야 한다. (**Settings -> GitHub Apps** 에서 클릭 한번으로 설치할 수 있다.)
+- [Giscus 웹사이트](https://giscus.app/)에서 댓글 기능을 위한 Script를 생성한다.
+- 다음의 환경변수를 Vercel에 등록한다.
+
+```env
+NEXT_PUBLIC_GISCUS_REPO=<username>/<repository_name>
+NEXT_PUBLIC_GISCUS_REPOSITORY_ID=<repository_id>
+NEXT_PUBLIC_GISCUS_CATEGORY=Announcements
+NEXT_PUBLIC_GISCUS_CATEGORY_ID=<category_id>
+```
+
+`Comment.tsx`를 보면 이렇게 되어있는데, `siteMetadata`에 `comments`가 설정되어 있으면 해당 provider의 configuration을 끌어오게 되어있다.
+
+```typescript
+export default function Comments({ slug }: { slug: string }) {
+  const [loadComments, setLoadComments] = useState(false)
+  return (
+    <>
+      {!loadComments && <button onClick={() => setLoadComments(true)}>Load Comments</button>}
+      {siteMetadata.comments && loadComments && (
+        <CommentsComponent commentsConfig={siteMetadata.comments} slug={slug} />
+      )}
+    </>
+  )
+}
+```
+
+하나 특이한 점은 `Load Comments`라는 버튼을 눌러야만 댓글 목록과 댓글 작성창이 보인다는 것이다.
+나는 이게 싫어서 그냥 아래와 같이 바로 댓글을 로드할 수 있게 했다.
+
+```typescript
+export default function Comments({ slug }: { slug: string }) {
+  return (
+    <>
+      {siteMetadata.comments && (
+        <CommentsComponent commentsConfig={siteMetadata.comments} slug={slug} />
+      )}
+    </>
+  )
+}
+```
+
+댓글창과 리액션 버튼이 예쁘게 설정되었다.
+
+![giscus](/static/images/231106-nextjs-blog/giscus.png)
+
+이제 댓글이나 리액션이 생성되면 위에서 설정한 Github Repository에 (각 pathname에 대응하는) Discussion이 생성될 것이다.
+해당 Github Repository를 Watch하면 이러한 활동을 이메일로 바로바로 받아볼 수 있다.
+
+### 3.3 SEO : next-sitemap 설정하기
+
+마지막으로 SEO를 설정해보자. 나는 [next-sitemap](https://github.com/iamvishnusankar/next-sitemap)이라는 모듈을 통해 간단히 sitemap을 생성하고 Google Search Console에 등록했다.
+(여기서 Google Search Console에 사이트를 등록하는 과정에 대해서 자세히 다루지는 않겠다.)
+
+README에 설명이 친절하게 나와있지만, 대략적으로 요약하면 다음과 같다.
+- 먼저 `next-sitemap`을 설치한다.
+  ```shell
+  yarn add next-sitemap
+  ```
+- 루트 디렉토리에 `next-sitemap.config.js`를 다음과 같이 생성한다.
+     ```js
+     /** @type {import('next-sitemap').IConfig} */
+    module.exports = {
+      siteUrl: process.env.SITE_URL || 'https://example.com',
+      generateRobotsTxt: true, // (optional)
+      // ...other options
+    }
+     ```
+- `package.json`에 postbuild script를 다음과 같이 추가한다.
+  ```json
+   {
+      "build": "next build",
+      "postbuild": "next-sitemap"
+    }
+   ```
+- 마지막으로 build 한다.
+  ```shell
+  yarn build
+  ```
+
+성공적으로 build가 되었다면 `sitemap.xml`등의 파일이 생성되었을 것이다. `<도메인>/sitemap.xml` 으로 접속했을떄 프로젝트 내부 페이지들이 모두 확인되면 성공이다.
+
+
+## 4. 마무리
 
 남아있는 Task 들은 다음과 같다.
 
-* 글꼴 바꾸기
+* 디자인 개선
+* 배포 과정 및 테스트 개선
 * multilingual site 만들기
 * 사이드바에 toc 달기
-* 맞춤법 봇 달기
-* ci cd 달기 (yarnlint?)
+
+한동안 블로그를 묵혀두고 있었는데 빠르게 Migration을 할 수 있었던 것 같아 기분이 좋다.  이것저것 또 실험을 해봐야겠다!
