@@ -130,7 +130,7 @@ Best Practice 는 이렇다.
 그리고 상대 경로인것도 문제지만 Image가 한 디렉토리에서 관리되는 게 아니라 온 문서에 흩어져있는 터라...(심지어 docs 디렉토리 밖에서도 이미지가 꽤 많았다) 꽤나 많은 파일과 디렉토리를 수정해야 했다.
 그리고 기존 문서의 상당 부분이 Script로 자동 생성되고 있었는데, 이런 특성까지 합쳐져서 조금더 복잡한 부분들이 있었다.
 
-## 3. 옵션 고려
+## 4. 옵션 고려
 
 Native Versioning을 이용하지 않고 버전 관리를 적용하는 방법도 있긴 했다. 다른 오픈소스 회사들이 Archived Versions을 관리할 때 많이 사용하는 방식인데 그냥 특정 배포의 외부 URL을 링크하는 것이다.
 [Docusaurus](https://docusaurus.io/)도 예전 버전에 대해 이런 방법을 사용하고 있다. `Archived Versions` 아래에 있는 버전을 클릭하면 특정 Netlify 배포로 연결된다.
@@ -143,7 +143,7 @@ Native Versioning을 이용하지 않고 버전 관리를 적용하는 방법도
 
 그래서 본 목적에 부합하지 않는다는 결론이 났고 결국에는 시간이 오래 걸리더라도 Native Versioning을 도입하기로 했다.
 
-## 4. 구현!
+## 5. 구현!
 
 일단 해결해야 할 것들은 다음과 같았다.
 - 기존 Image 를 모두 절대 경로로 바꾼다.
@@ -151,7 +151,7 @@ Native Versioning을 이용하지 않고 버전 관리를 적용하는 방법도
 - Version을 생성한다.
 - 이 모든것에 대한 Runbook을 만든다.
 
-### 4.1 Image 핸들링 & markdown-link-check
+### 5.1 Image 핸들링 & markdown-link-check
 이건 도저히 수기로 할수 없어서 Script를 작성했다. 구조는 대충 다음과 같았다.
 
 ```python
@@ -180,7 +180,8 @@ for root, dirs, files in os.walk(directory_path):
             replace_link_pattern_in_file(file_path)
             print(f"Modified: {file_path}")
 ```
-실제로는 이미지가 여러 곳에 흩어져 있었기 때문에 다소의 노가다가 필요했다. (최종 [PR](https://github.com/datahub-project/datahub/pull/8714)을 보면 Filed Changed이 298개이다.)
+실제로는 이미지가 여러 곳에 흩어져 있었기 때문에 다소의 노가다가 필요했다.
+(최종 [PR](https://github.com/datahub-project/datahub/pull/8714)을 보면 Filed Changed이 298개이다.)
 이 과정에서 [markdown-link-check](https://github.com/tcort/markdown-link-check)가 매우 도움이 많이 됐다.
 왜냐면 Docusaurus는 깨진 이미지 경로에 대해 build 과정에서 딱히 검증하지 않기 때문이다. 그러면 깨진 이미지가 실제로 배포될 위험성이 있었다.
 근데 markdown-link-check는 이런 broken link들을 모두 다 체크해준다. 기본적인 실행 방식은 다음과 같다.
@@ -196,7 +197,7 @@ find ./genDocs -name \\*.md -not -path \"./genDocs/python-sdk/models.md\" -print
 ```
 나중에는 이 툴을 CICD 에 넣어버리려고 했으나 너무 복잡성을 추가하는 것 같아 기각되었다.
 
-### 4.2 Sidebar 수정
+### 5.2 Sidebar 수정
 이미지를 핸들링 하고 나면 Sidebar 수정은 간단하다. [docsVersionDropdown](https://docusaurus.io/docs/api/themes/configuration#navbar-docs-version-dropdown)을 적용한다.
 실제 파일은 [여기서 확인](https://github.com/datahub-project/datahub/blob/master/docs-website/docusaurus.config.js#L90C1-L94C11)할 수 있다.
 
@@ -208,7 +209,7 @@ find ./genDocs -name \\*.md -not -path \"./genDocs/python-sdk/models.md\" -print
 },
 ```
 
-### 4.3 Versioned Directory를 외부 Repository에 분리
+### 5.3 Versioned Directory를 외부 Repository에 분리
 
 이 시점에서 내부적으로 Versioning Directory를 어떻게 핸들링할것인가에 대한 고민이 있었다. 왜냐면 이미 우리의 레포지토리는 무겁고 복잡하기 때문이다. 정확히는 아래의 부분이다.
 ```python
@@ -347,7 +348,7 @@ docs-website/versioned_sidebars/
 결론적으로는 메인 레포에 과거 버전 관련 디렉토리가 포함되지 않기 때문에 메인 레포를 가볍고 직관적으로 유지할 수 있게 되었다.
 또 새로운 릴리즈 시 메인 레포에 올라가는 변경 사항은 `version.json`에 추가되는 한 줄 뿐이어서 매우 직관적이다.
 
-### 4.4 런북 만들기
+### 5.4 런북 만들기
 
 실무에서 이런 버저닝 작업은 프로덕트 릴리즈와 동시에 이루어져야 한다.
 그리고 이상적으로는 내가 이 과정에서 Blocker가 되는 것이 아니라 잘 짜여진 런북을 바탕으로 릴리즈 책임자가 문서 버전 관리까지 할 수 있어야 한다.
@@ -360,7 +361,7 @@ docs-website/versioned_sidebars/
 - 새로운 버전에 관련된 문서들이 제대로 들어가 있는지 점검하는 내용
 
 
-## 5. 결과 & 남아있는 과제들
+## 6. 결과 & 남아있는 과제들
 
 결과적으로 이 체제를 바탕으로 벌써 3개의 Version이 배포가 되었다. 다른 Navbar Section과 구분하기 위해 디자인 개선도 진행하였다.
 
