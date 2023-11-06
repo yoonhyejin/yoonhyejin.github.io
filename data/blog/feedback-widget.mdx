@@ -1,0 +1,159 @@
+---
+title: Supabase로 개발자 문서 Feedback Widget 구거하기
+date: '2023-11-07'
+tags: ['engineering', 'docs', 'data', 'react']
+summary: 유저 피드백을 원하지만 무료로 구현하고 싶어
+---
+## 1. 왜 Feedback Widget이 필요한가?
+
+개발자 문서도 하나의 제품이라고 생각해보면 유저 피드백을 수집하고 해석해서 반영하는 과정이 빠질 수 없다.
+개발자 문서의 유저 데이터 및 메트릭을 수집하는 방법에는 여러가지가 있다.
+
+- [Google Analytics](https://analytics.google.com/), [Umami](https://umami.is/) 등의 웹 분석 툴
+- [Algolia](https://www.algolia.com/) 등의 검색 분석 툴
+- [LuckyOrange](luckyorange.com) 등의 히트맵 / 픽셀 트래커
+- Feedback Widget
+
+다른 툴도 좋은 인사이트를 뽑을 수 있지만 Feedback Widget은 특정 페이지 별 실제 유저의 피드백을 들을 수 있는 좋은 채널이다.
+Feedback Widget은 다음과 같이 보통 문서 하단에 붙어 `Is this page helpful?`을 묻는 위젯이라고 생각하면 된다. [React Native](https://reactnative.dev/docs/getting-started), [GitBook](https://docs.gitbook.com/) 등의 여러 문서에서 쉽게 찾아볼 수 있다.
+
+![rn](/static/images/231107-feedback-widget/rn.png)
+
+![gitbook](/static/images/231107-feedback-widget/gitbook.png)
+
+우리 회사에서는 구체적인 페이지 컨텐츠 개선에 도움이 될 것을 기대하고 Feedback Widget을 적용해보자는 아이디어가 나왔다.
+
+
+## 2. 의사 결정
+Feedback widget을 구현하는 데는 여러 방법이 있다. 당시 평가 기준은 1) 무료여야 했고 2) 실시간으로 데이터를 볼수 있어야 했고 3) 자유도가 높아야 했다.
+우리가 쓰고 있는 프레임워크인 [Docusaurus](https://docusaurus.io/)에서 자체적으로 지원되는 건 아직 없었는데, 이 주제를 가지고 [Feature Request 게시판](https://docusaurus.io/feature-requests/p/feedback-widget)에서 매우 긴 토론이 진행되는 중이었다.
+리서치를 통해 탐색한 옵션은 다음과 같았다.
+- [FeedbackRocket](https://www.feedbackrocket.io/integration-guides/docusaurus) - 유료임
+- [HappyReact](https://happyreact.com/blog/feedback-widget-in-docusaurus) - 무료이나, 적극적으로 개발되고 있지 않는 것 같았고 logo를 제거하려면 돈을 줘야 했음
+- 직접 구현하기
+
+결론적으로는 직접 구현하기로 결정이 됐는데 이유는 다음과 같았다.
+- HappyReact를 빠르게 PoC 해봤는데 크게 만족스럽지 않았다
+- 이미 [Supabase](https://supabase.com/)라는 툴을 쓰고 있었고 연동하는 데에 개발 난이도가 그렇게 크게 어려워보이지 않았다
+- 미래를 위해서 다른 플랫폼에 의존하기 싫었다
+
+## 3. 구현
+최종적으로 다음과 같은 파일이 생성된다. (css 파일들 제외)
+- `src/components/Feedback/supabase.js` : Supabase client를 정의한다.
+- `src/components/Feedback/index.js` : Feedback widget을 정의한다.
+- `theme/DocItem/Footer/index.js` : 각 문서 페이지 하단에 Feedback widget을 삽입한다.
+
+뒤로 갈수록 Optional Text Field가 생기는 등 고도화가 되었지만 여기서는 이해를 돕기 위해 초기 디자인 중심으로 설명해보려고 한다.
+
+### 3.1 Supabase 설정
+Supabase에 새로운 프로젝트를 생성한다. Feedback을 저장할 수 있는 Table을 생성한다. 아주 간단하게는 다음과 같을 것이다.
+언제 어떤 페이지에서 어떤 리액션이 발생했는지를 저장한다.
+```
+id uuid not null default gen_random_uuid (),
+created_at timestamp with time zone not null default now(),
+page text null,
+reaction text null,
+constraint reaction_feedback_pkey primary key (id)
+```
+
+다음으로는 테이블에 대해서 [RLS(Row Level Security)](https://supabase.com/docs/learn/auth-deep-dive/auth-row-level-security) 정책을 다음과 같이 설정한다.
+기본적으로 사이트를 방문하는 모든 유저가 insert를 할수 있어야 하지만 어드민만 데이터를 읽을수 있어아 햔다.
+
+![rls](/static/images/231107-feedback-widget/rls.png)
+
+마지막으로 `supabase.js`에서 다음과 같이 supabase 클라이언트를 설정한다. `index.js`에서 이 부분을 끌어다 쓸 것이다.
+```js
+import { createClient } from "@supabase/supabase-js";
+
+const supabaseUrl = "<supabaseUrl>";
+const supabaseKey = "<supabaseKey>";
+
+export const supabase = createClient(supabaseUrl, supabaseKey);
+
+export default supabase;
+```
+
+### 3.2 Feedback Widget 정의
+
+`index.js`를 다음과 같이 설정한다.
+
+```js
+import React, { useState } from "react";
+import { supabase } from "./supabase";
+import styles from "./styles.module.css";
+
+const Feedback = ({ page }) => {
+  const [reaction, setReaction] = useState(null);
+
+  const handleReaction = async (selectedReaction) => {
+    console.log("Button clicked:", selectedReaction);
+    try {
+      const { data, error } = await supabase.from("feedback").insert([
+        {
+          page: window.location.href,
+          reaction: selectedReaction,
+        },
+      ]);
+
+      if (error) {
+        console.error("Error submitting feedback:", error);
+        return;
+      }
+
+      setReaction(selectedReaction);
+    } catch (error) {
+      console.error("Error submitting feedback:", error);
+    }
+  };
+
+  return (
+    <div className={styles.feedbackWidget}>
+      {reaction === null ? (
+        <div className={styles.reactionButtons}>
+          <h3>Is this page helpful?</h3>
+          <button className={styles.reaction} onClick={() => handleReaction("thumbs_up")}>👍</button>
+          <button className={styles.reaction} onClick={() => handleReaction("thumbs_down")}>👎</button>
+        </div>
+      ) : (
+        <div className={styles.feedbackMessage}>
+          Thanks for your feedback!
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Feedback;
+```
+
+유저의 Feedback과 현재 페이지 주소를 받아서 Supabase Client의 Table에 Insert하는 것임을 알수 있다.
+유저가 리액션을 해주면 **Thank you for your feedback!** 이라는 문구도 날려준다.
+
+### 3.3 Doc Footer 정의
+해당 피드백 위젯은 모든 개별 문서 페이지의 하단에 들어가야 한다. 따라서 `theme/DocItem/Footer/index.js`에 DocItemFooter 안에 Feedback Widget을 다음처럼 선언한다.
+```js
+import Feedback from "../../../components/Feedback";
+...
+
+export default function DocItemFooter() {
+  ...
+  return (
+    <>
+      <Feedback resource={unversionedId} />
+      ...
+    </>
+  );
+}
+```
+
+여기까지만 구현해도 실제 유저의 피드백을 데이터베이스에 받을 수 있다.
+뒤로 갈수록 위젯의 디자인도 개선되고 따봉을 눌렀을 때 Optional하게 피드백을 제공할 수 있는 Text Field도 추가되었다. 최종 PR은 [여기](https://github.com/datahub-project/datahub/pull/8732)서 확인할 수 있다.
+
+## 4. 결과
+
+결과적으로 이런 뽀짝한 Feedback Widget이 [모든 페이지 하단](https://datahubproject.io/docs/quickstart#performance--management)에 들어가게 되었다.
+
+![dh](/static/images/231107-feedback-widget/dh.png)
+
+짧은 시간에 기획부터 실제 구현, 배포, 데이터 수집까지 해볼수 있어서 흥미로운 프로젝트였다. Supabase에 실제 피드백 데이터가 쌓이는 것도 재밌었다.
+남은 과제라면 실제로 이 Widget을 실제로 얼마나 많은 유저들이 사용하게 할 것인지인데 이건 인지적으로 풀어가야 하는 문제가 아닌가 싶다.
