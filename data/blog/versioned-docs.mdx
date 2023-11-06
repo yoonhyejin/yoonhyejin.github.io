@@ -7,8 +7,8 @@ summary: 2주마다 릴리즈되는 오픈소스 개발자 문서에 버저닝�
 
 ## 1. 왜 Versioning이 필요한가?
 
-오픈소스는의 프로덕트는 매우 빨리 변한다. 이런 상황에서 어떤 버전에 어떤 기능이 지원되는지를 파악하는 것은 유저 경험에 있어 매우 중요한 부분이다.
-그래서 보통 왠만한 개발자 문서에서는 대부분 Versioning이 적용되어 있는 것을 볼 수있다. 다음은 [Reactive Native 문서](https://reactnative.dev/docs/getting-started)의 Versioning 예시이다.
+오픈소스의 프로덕트는 매우 빨리 변한다. 따라서 프로덕트의 어떤 버전에 어떤 기능이 지원되는지를 파악하는 것은 유저 경험에 있어 매우 중요한 부분이다.
+그래서 보통 왠만한 개발자 문서에서는 Versioning이 적용되어 있다. 다음은 [Reactive Native 문서](https://reactnative.dev/docs/getting-started)의 Versioning 예시이다.
 
 ![rn-version](/static/images/231106-versioned-docs/rn-version.png)
 
@@ -105,7 +105,7 @@ yarn docusaurus docs:version 1.1.0
 그에 따라서 Contribution이나 Release process도 자연스레 복잡해진다. 이미 문서가 꽤 복잡하게 운영되고 있던 터라 이 부분이 걱정이 안 될수가 없었다.
 그리고 특정 버전의 문서에서 오류를 발견 했을때, 과거 버전의 문서에서도 그걸 다 고쳐야 하는가? 하는 의문도 생기게 된다.
 
-나중에 알게 된 거지만, Multiple Sidebar를 사용하도록 바뀌거나 하면 그 전의 Version에서 새로운 Sidebar를 찾을 수 없다는 오류가 발생하는 등의 문제가 있었다.
+나중에 알게 된 거지만, Multiple Sidebar를 사용하도록 바꾸거나 하면 그 전의 Version에서 새로운 Sidebar를 찾을 수 없다는 오류가 발생하는 등의 문제가 있었다.
 
 ### 3.2 이미지 핸들링
 
@@ -128,7 +128,7 @@ Best Practice 는 이렇다.
 그런데 상대 경로로 이미지를 지정해놓으면 당연히 다 깨질수밖에 없다. 그리고 Docusaurus에서 이미지 경로가 깨지면 빌드가 실패하기 때문에 빌드는 영원히 불가능하다!
 
 그리고 상대 경로인것도 문제지만 Image가 한 디렉토리에서 관리되는 게 아니라 온 문서에 흩어져있는 터라...(심지어 docs 디렉토리 밖에서도 이미지가 꽤 많았다) 꽤나 많은 파일과 디렉토리를 수정해야 했다.
-그리고 기존 문서의 상당 부분이 Script로 auto generate되고 있었는데, 이런 특성까지 합쳐져서 조금더 복잡한 부분들이 있었다.
+그리고 기존 문서의 상당 부분이 Script로 자동 생성되고 있었는데, 이런 특성까지 합쳐져서 조금더 복잡한 부분들이 있었다.
 
 ## 3. 옵션 고려
 
@@ -189,7 +189,7 @@ for root, dirs, files in os.walk(directory_path):
 makrdown-link-check <filename.md>
 ```
 
-하나의 단점이라면 디렉토리 전체를 포함하거나 제외하는데에 딱히 직관적이지 않다는 점인데, 이것저것 config를 넣어서 다음처럼 실행할 수 있다.
+하나의 단점이라면 디렉토리 전체를 포함하거나 제외하는데에 딱히 직관적이지 않다는 점인데, 이것저것 Config를 넣어서 다음처럼 실행할 수 있다.
 
 ```shell
 find ./genDocs -name \\*.md -not -path \"./genDocs/python-sdk/models.md\" -print0 | xargs -0 -n1 markdown-link-check -p -q -c markdown-link-check-config.json
@@ -219,7 +219,7 @@ find ./genDocs -name \\*.md -not -path \"./genDocs/python-sdk/models.md\" -print
 │   ├── version-1.1.0-sidebars.json
 │   └── version-1.0.0-sidebars.json
 ```
-매 버전이 릴리즈 될때마다 점점 무거워지고 하나의 PR에 Changed files 300개씩 올라와서 로딩도 안되는 사태를 만들 수는 없었다.
+매 버전이 릴리즈 될 때마다 점점 무거워지고 하나의 PR에 Changed files 300개씩 올라와서 로딩도 안되는 사태를 만들 수는 없었다.
 결론은 해당 디렉토리들을 압축해서 다른 레포에 분리해두고 빌드 때마다 자동으로 불러오자는 아이디어가 제시되었다.
 그래서 [스크립트](https://github.com/datahub-project/datahub/blob/master/docs-website/download_historical_versions.py)를 작성하였다.
 ```python
@@ -356,7 +356,7 @@ docs-website/versioned_sidebars/
 
 ## 5. 결과 & 남아있는 과제들
 
-결과적으로 이 체제를 바탕으로 벌써 3개의 버저닝이 배포가 되었다. 다른 Navbar section과 구분하기 위해 디자인 개선도 진행하였다.
+결과적으로 이 체제를 바탕으로 벌써 3개의 Version이 배포가 되었다. 다른 Navbar Section과 구분하기 위해 디자인 개선도 진행하였다.
 
 ![dh-version](/static/images/231106-versioned-docs/dh-version.png)
 
