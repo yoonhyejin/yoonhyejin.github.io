@@ -180,7 +180,7 @@ for root, dirs, files in os.walk(directory_path):
             replace_link_pattern_in_file(file_path)
             print(f"Modified: {file_path}")
 ```
-실제로는 이미지가 여러 곳에 흩어져 있었기 때문에 다소의 노가다가 필요했다.
+실제로는 이미지가 여러 곳에 흩어져 있었기 때문에 다소의 노가다가 필요했다. (최종 [PR](https://github.com/datahub-project/datahub/pull/8714)을 보면 Filed Changed이 298개이다.)
 이 과정에서 [markdown-link-check](https://github.com/tcort/markdown-link-check)가 매우 도움이 많이 됐다.
 왜냐면 Docusaurus는 깨진 이미지 경로에 대해 build 과정에서 딱히 검증하지 않기 때문이다. 그러면 깨진 이미지가 실제로 배포될 위험성이 있었다.
 근데 markdown-link-check는 이런 broken link들을 모두 다 체크해준다. 기본적인 실행 방식은 다음과 같다.
@@ -210,7 +210,7 @@ find ./genDocs -name \\*.md -not -path \"./genDocs/python-sdk/models.md\" -print
 
 ### 4.3 Versioned Directory를 외부 Repository에 분리
 
-이 시점에서 내부적으로 Versioning Directory를 어떻게 핸들링할것인가에 대한 고민이 있었다. 왜냐면 이미 우리의 레포지토리는 무겁고 복잡하기 때문이다.  정확히는 아래의 부분이다.
+이 시점에서 내부적으로 Versioning Directory를 어떻게 핸들링할것인가에 대한 고민이 있었다. 왜냐면 이미 우리의 레포지토리는 무겁고 복잡하기 때문이다. 정확히는 아래의 부분이다.
 ```python
 ├── versioned_docs
 │   ├── version-1.1.0
@@ -219,7 +219,7 @@ find ./genDocs -name \\*.md -not -path \"./genDocs/python-sdk/models.md\" -print
 │   ├── version-1.1.0-sidebars.json
 │   └── version-1.0.0-sidebars.json
 ```
-매 버전이 릴리즈 될 때마다 점점 무거워지고 하나의 PR에 Changed files 300개씩 올라와서 로딩도 안되는 사태를 만들 수는 없었다.
+매 버전이 릴리즈 될 때마다 점점 무거워질 것이 분명하고 (그렇게 자주 수정되지 않을 것이 분명한) 과거 버전의 문서를 메인 레포에서 들고 있어야 하는 문제가 제기된 것이다.
 결론은 해당 디렉토리들을 압축해서 다른 레포에 분리해두고 빌드 때마다 자동으로 불러오자는 아이디어가 제시되었다.
 그래서 [스크립트](https://github.com/datahub-project/datahub/blob/master/docs-website/download_historical_versions.py)를 작성하였다.
 ```python
