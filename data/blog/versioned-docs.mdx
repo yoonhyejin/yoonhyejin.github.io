@@ -328,7 +328,7 @@ task downloadHistoricalVersions(type: Exec) {
 }
 ```
 
-이 Task가 기본적으로 로컬 테스트 및 CICD 에 둘다 적용되어야 했기 때문에 `yarnStart`, `yarnBuild` 등에 대해 Dependancy 로 추가했다.
+이 Task가 기본적으로 로컬 테스트 및 CICD 에 둘다 적용되어야 했기 때문에 `yarnStart`, `yarnBuild` 등에 대해 Dependency  추가했다.
 ```gradle
 task yarnStart(type: YarnTask, dependsOn: [yarnInstall, yarnGenerate, downloadHistoricalVersions]) {
 ...
@@ -369,8 +369,8 @@ docs-website/versioned_sidebars/
 
 내부적으로도 외부적으로도 드디어 버저닝! 하는 반응이 왔다. 내적 관종은 언제나 내가 만든 결과물이 세상에 나가면 기쁘지만 여전히 다음과 같은 과제가 남아있는 것 같다.
 
-- 프로덕트 릴리즈와 문서 작성이 정말 자연스럽게 잘 얼라인이 될려면 어떻게 개선해야 할지
-- 지금은 버저닝을 생성하고 압축해서 외부 레포에 올리는 것이 수동으로 진행되고 있는데 이 과정을 어떻게 자동화할지
+- 프로덕트 릴리즈와 문서 작성이 자연스럽게 잘 Align이 될려면 어떻게 개선해야 할지
+- 지금은 버저닝을 생성하고 압축해서 외부 Repo에 올리는 것이 수동으로 진행되고 있는데 이 과정을 어떻게 자동화할지
 - 버저닝이 필요없는 문서에 대해서는 어떻게 관리가 필요한지 (ex. Release Note)
 
 결론 : 재미있었다. :)
